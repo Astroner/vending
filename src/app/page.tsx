@@ -1,95 +1,69 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import { useEffect, useRef, useState } from 'react'
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export default function Home() {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  const [canvas, setCanvas] = useState<HTMLCanvasElement>();
+
+  useEffect(() => {
+    if(!ref.current) return;
+
+    setCanvas(ref.current);
+  }, [])
+
+  useEffect(() => {
+    if(!canvas) return;
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
+    camera.position.z = -10;
+
+    const scene = new THREE.Scene();
+
+    const sky = new THREE.HemisphereLight(0xffffff, 0x0000ff);
+    scene.add(sky);
+
+    const projector = new THREE.DirectionalLight(0xffffff, 2);
+    projector.position.set(2, 8, 0);
+    projector.target.position.set(0, 0, 0);
+    const projectorHelper = new THREE.DirectionalLightHelper(projector);
+    scene.add(projectorHelper);
+    scene.add(projector);
+
+    const loader = new GLTFLoader();
+
+    loader.load("/assets/vending.glb", (mesh) => {
+      scene.add(mesh.scene);
+      mesh.scene.traverse(obj => {
+        console.log(obj.name, obj)
+        if(obj.name !== "Glass" || !(obj instanceof THREE.Mesh) || !(obj.material instanceof THREE.MeshStandardMaterial)) return;
+
+        obj.material.transparent = true;
+        obj.material.opacity = .5;
+      })
+  
+  
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x0000a0)
+
+      const orbit = new OrbitControls(camera, renderer.domElement);
+  
+      renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+        orbit.update();
+      })
+    })
+
+  }, [canvas])
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+      <div>
+        <canvas ref={ref} />
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
   )
 }
