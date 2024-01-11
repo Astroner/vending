@@ -15,9 +15,7 @@ export const PreloadedDisplay = dynamic(
     return PreloadedDisplay
 }, {
     ssr: false,
-    loading: (props) => {
-        if(props.error) return <div>Error</div>
-
+    loading: () => {
         return <div>Loading</div>
-    }
+    },
 })
