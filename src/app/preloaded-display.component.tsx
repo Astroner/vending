@@ -1,9 +1,10 @@
 import dynamic from "next/dynamic";
-import { loadAssets } from "@/src/graphics/load-assets";
 import { FC } from "react";
 
 export const PreloadedDisplay = dynamic(
     async () => {
+        const { loadAssets } = await import('../graphics/load-assets')
+
         const [assets, { Display }] = await Promise.all([
             loadAssets(),
             import("./display.component")

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { Assets } from "./types";
+import { Assets, View } from "./types";
 
 export type Configuration = {
     canvas: HTMLCanvasElement,
@@ -9,7 +9,7 @@ export type Configuration = {
     height: number
 }
 
-export class CanvasView {
+export class CanvasView implements View {
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
 
