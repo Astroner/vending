@@ -216,7 +216,7 @@ export class CanvasView implements View {
     }
 
     private sendEvent(e: CanvasEvent) {
-        for(const listener of this.eventListeners.values()) {
+        for(const listener of this.eventListeners) {
             listener(e);
         }
     }
