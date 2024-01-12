@@ -1,7 +1,15 @@
-import { GLTF } from "three/examples/jsm/loaders/GLTFLoader"
+import type { Font } from "three/examples/jsm/Addons.js"
+
+type Update<Type, Data> = Data & {
+    type: Type,
+}
 
 export interface Model {
+    inputItemNumberID(char: string): Update<'screenUpdate', { state: string }>
+    pressOk(): Update<'error', { message: string }> | Update<'success', { price: string }>
+    pressReset(): Update<'reset', { screenState: string, coinsToReturn: number[] }>
 
+    insertCoin(value: number): Update<"success", { moneyNeeded: number }>
 }
 
 export interface View {
@@ -9,5 +17,16 @@ export interface View {
 }
 
 export type Assets = {
-    vendingMachine: GLTF
+    displayFont: Font
+
+    scene: THREE.Object3D,
+    body: THREE.Group,
+    glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>,
+    floor: THREE.Object3D
+    shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[]
+    screen: THREE.Object3D
+
+    okBtn: THREE.Group,
+    resetBtn: THREE.Group
+    numbers: THREE.Group[],
 }

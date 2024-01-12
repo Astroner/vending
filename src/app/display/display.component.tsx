@@ -2,8 +2,10 @@
 
 import { FC, useEffect, useRef, useState } from "react";
 
-import { CanvasView } from "../graphics/view";
-import { Assets } from "../graphics/types";
+import { CanvasView } from "../../graphics/view";
+import { Assets } from "../../graphics/types";
+
+import cn from "./display.module.scss";
 
 export interface DisplayProps {
     assets: Assets
@@ -12,7 +14,7 @@ export interface DisplayProps {
 export const Display: FC<DisplayProps> = props => {
     const ref = useRef<HTMLCanvasElement>(null);
 
-    const [canvas, setCanvas] = useState<HTMLCanvasElement>();
+    const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   
     useEffect(() => {
         if(!ref.current) return;
@@ -27,10 +29,11 @@ export const Display: FC<DisplayProps> = props => {
             canvas: canvas,
             assets: props.assets,
             width: window.innerWidth,
-            height: window.innerHeight
+            height: window.innerHeight,
+            initialText: ""
         })
 
-        view.start()
+        view.start();
 
         return () => {
             view.destroy();
@@ -40,7 +43,7 @@ export const Display: FC<DisplayProps> = props => {
 
 
     return (
-        <div>
+        <div className={cn.root}>
             <canvas ref={ref} />
         </div>
     )
