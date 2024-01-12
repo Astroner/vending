@@ -17,16 +17,20 @@ export interface View {
 }
 
 export type Assets = {
-    displayFont: Font
+    displayFont: Font;
 
-    scene: THREE.Object3D,
-    body: THREE.Group,
-    glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>,
-    floor: THREE.Object3D
-    shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[]
-    screen: THREE.Object3D
+    coin: THREE.Object3D;
 
-    okBtn: THREE.Group,
-    resetBtn: THREE.Group
-    numbers: THREE.Group[],
+    scene: THREE.Object3D;
+    body: THREE.Group;
+    glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+    floor: THREE.Object3D;
+    shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[];
+    screen: THREE.Object3D;
+
+    okBtn: THREE.Group;
+    resetBtn: THREE.Group;
+    numbers: THREE.Group[];
+
+    coinAnimation: THREE.AnimationClip;
 }

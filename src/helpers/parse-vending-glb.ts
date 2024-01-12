@@ -9,9 +9,18 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
     let glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
     let floor: THREE.Object3D | null = null;
     let screen: THREE.Object3D | null = null;
+    let coin: THREE.Object3D | null = null;
 
     let okBtn: THREE.Group | null = null;
     let resetBtn: THREE.Group | null = null;
+
+    let coinAnimation: THREE.AnimationClip | null = null;
+
+    for(const animation of glb.animations) {
+        if(animation.name === "CoinAction") {
+            coinAnimation = animation;
+        }
+    }
 
     glb.scene.traverse(obj => {
         switch(obj.name) {
@@ -21,6 +30,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
             case "Screen":
                 screen = obj;
+                return;
+            
+            case "Coin":
+                coin = obj;
                 return;
         }
 
@@ -83,7 +96,9 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !floor ||
         !screen ||
         !okBtn ||
-        !resetBtn
+        !resetBtn ||
+        !coin ||
+        !coinAnimation
     ) throw new Error("Couldn't parse GLB");
 
     return {
@@ -95,6 +110,8 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         shelves,
         screen,
         okBtn,
-        resetBtn
+        resetBtn,
+        coin,
+        coinAnimation
     }
 }

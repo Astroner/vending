@@ -15,7 +15,14 @@ export const PreloadedDisplay = dynamic(
 
         const parsedVending = parseVendingGLB(vendingGLB);
     
-        const PreloadedDisplay: FC = () => <Display assets={{ ...parsedVending, displayFont }} />
+        const PreloadedDisplay: FC = () => (
+            <Display 
+                assets={{ 
+                    ...parsedVending, 
+                    displayFont,
+                }} 
+            />
+        )
 
         return PreloadedDisplay
     }, 
