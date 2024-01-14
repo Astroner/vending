@@ -25,6 +25,7 @@ export type Assets = {
     body: THREE.Group;
     glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
     floor: THREE.Object3D;
+    hatch: THREE.Object3D;
     shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[];
     screen: THREE.Object3D;
     items: Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>
@@ -34,4 +35,5 @@ export type Assets = {
     numbers: THREE.Group[];
 
     coinAnimation: THREE.AnimationClip;
+    hatchAnimation: THREE.AnimationClip;
 }

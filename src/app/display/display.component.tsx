@@ -99,6 +99,7 @@ export const Display: FC<DisplayProps> = props => {
                 case "okPressed":
                     viewState = "ok";
                     view.insertCoin();
+                    view.openCloseHatch();
                     break;
             }
 

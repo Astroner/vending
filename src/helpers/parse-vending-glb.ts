@@ -12,15 +12,23 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
     let floor: THREE.Object3D | null = null;
     let screen: THREE.Object3D | null = null;
     let coin: THREE.Object3D | null = null;
+    let hatch: THREE.Object3D | null = null;
 
     let okBtn: THREE.Group | null = null;
     let resetBtn: THREE.Group | null = null;
 
     let coinAnimation: THREE.AnimationClip | null = null;
+    let hatchAnimation: THREE.AnimationClip | null = null;
 
     for(const animation of glb.animations) {
-        if(animation.name === "CoinAction") {
-            coinAnimation = animation;
+        switch(animation.name) {
+            case "CoinAction":
+                coinAnimation = animation;
+                break;
+
+            case "HatchOpenClose":
+                hatchAnimation = animation;
+                break;
         }
     }
 
@@ -36,6 +44,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             
             case "Coin":
                 coin = obj;
+                return;
+
+            case "Hatch":
+                hatch = obj;
                 return;
         }
 
@@ -119,7 +131,9 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !resetBtn ||
         !coin ||
         !coinAnimation ||
-        items.size < 15
+        items.size < 15 ||
+        !hatchAnimation ||
+        !hatch
     ) throw new Error("Couldn't parse GLB");
 
     return {
@@ -134,6 +148,8 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         resetBtn,
         coin,
         coinAnimation,
-        items
+        items,
+        hatchAnimation,
+        hatch
     }
 }

@@ -50,6 +50,7 @@ export class CanvasView implements View {
     private mouse = new THREE.Vector2();
 
     private animations = new Set<THREE.AnimationMixer>()
+    private hatchAnimation: THREE.AnimationAction | null = null;
     
     constructor(private config: Configuration) {
         this.camera = new THREE.PerspectiveCamera(45, config.width / config.height);
@@ -175,6 +176,13 @@ export class CanvasView implements View {
         this.scene.add(group);
     }
 
+    openCloseHatch() {
+        if(!this.hatchAnimation) return;
+
+        this.hatchAnimation.reset();
+        this.hatchAnimation.play();
+    }
+
     addEventListener(cb: ViewEventListener) {
         this.eventListeners.add(cb);
 
@@ -272,6 +280,12 @@ export class CanvasView implements View {
 
         this.itemsClippingPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), box.max.x);
         this.scene.add(new THREE.PlaneHelper(this.itemsClippingPlane, 15, 0xff0000));
+
+
+        const hatchAnimationMixer = new THREE.AnimationMixer(this.config.assets.hatch);
+        this.hatchAnimation = hatchAnimationMixer.clipAction(this.config.assets.hatchAnimation);
+        this.hatchAnimation.loop = THREE.LoopOnce;
+        this.animations.add(hatchAnimationMixer);
     }
 
     private sendEvent(e: CanvasEvent) {
