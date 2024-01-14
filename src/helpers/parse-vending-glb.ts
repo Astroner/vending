@@ -19,6 +19,13 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
     let coinAnimation: THREE.AnimationClip | null = null;
     let hatchAnimation: THREE.AnimationClip | null = null;
+    
+    let frontCamera: THREE.Object3D | null = null;
+    let numpadCamera: THREE.Object3D | null = null;
+
+    let cameraFrontToNumpad: THREE.AnimationClip | null = null;
+    let cameraNumpadToFront: THREE.AnimationClip | null = null;
+
 
     for(const animation of glb.animations) {
         switch(animation.name) {
@@ -28,6 +35,14 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
             case "HatchOpenClose":
                 hatchAnimation = animation;
+                break;
+
+            case "camera-front-to-numpad":
+                cameraFrontToNumpad = animation;
+                break;
+            
+            case "camera-numpad-to-front":
+                cameraNumpadToFront = animation;
                 break;
         }
     }
@@ -48,6 +63,14 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
             case "Hatch":
                 hatch = obj;
+                return;
+
+            case "camera-front":
+                frontCamera = obj;
+                return;
+
+            case "camera-numpad":
+                numpadCamera = obj;
                 return;
         }
 
@@ -133,8 +156,18 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !coinAnimation ||
         items.size < 15 ||
         !hatchAnimation ||
-        !hatch
+        !hatch ||
+        !frontCamera ||
+        !numpadCamera ||
+        !cameraFrontToNumpad ||
+        !cameraNumpadToFront
     ) throw new Error("Couldn't parse GLB");
+
+    for(const track of cameraFrontToNumpad.tracks.concat(cameraNumpadToFront.tracks)) {
+        if(track.name.includes("camera")) {
+            track.name = "." + track.name.split(".")[1];
+        }
+    }
 
     return {
         scene: glb.scene,
@@ -150,6 +183,20 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         coinAnimation,
         items,
         hatchAnimation,
-        hatch
+        hatch,
+        cameras: {
+            front: frontCamera,
+            numpad: numpadCamera
+        },
+        cameraTracks: {
+            front: {
+                front: null as any,
+                numpad: cameraFrontToNumpad
+            },
+            numpad: {
+                front: cameraNumpadToFront,
+                numpad: null as any,
+            }
+        }
     }
 }

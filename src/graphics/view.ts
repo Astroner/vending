@@ -34,6 +34,8 @@ export type SlotInfo = {
     group: THREE.Group;
 }
 
+export type CameraPosition = "front" | "numpad";
+
 export class CanvasView implements View {
     private eventListeners = new Set<ViewEventListener>()
     private slotsMap = new Map<number, SlotInfo>();
@@ -51,6 +53,8 @@ export class CanvasView implements View {
 
     private animations = new Set<THREE.AnimationMixer>()
     private hatchAnimation: THREE.AnimationAction | null = null;
+
+    private currentCameraPosition: CameraPosition = "front";
     
     constructor(private config: Configuration) {
         this.camera = new THREE.PerspectiveCamera(45, config.width / config.height);
@@ -74,16 +78,18 @@ export class CanvasView implements View {
 
         this.initScene();
 
-        new OrbitControls(this.camera, this.renderer.domElement);
+        // const orbit = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.renderer.setAnimationLoop(() => {
             this.renderer.render(this.scene, this.camera);
 
             const delta = this.clock.getDelta();
 
-            for(const coin of this.animations) {
-                coin.update(delta);
+            for(const anim of this.animations) {
+                anim.update(delta);
             }
+
+            // orbit.update();
         })
     }
 
@@ -193,6 +199,29 @@ export class CanvasView implements View {
         }
     }
 
+    getCameraPosition(): CameraPosition {
+        return this.currentCameraPosition;
+    }
+
+    setCameraPosition(position: CameraPosition) {
+        const animation = this.config.assets.cameraTracks[this.currentCameraPosition][position];
+        
+        const mixer = new THREE.AnimationMixer(this.camera);
+
+        const action = mixer.clipAction(animation);
+        action.clampWhenFinished = true;
+        action.loop = THREE.LoopOnce;
+        action.play();
+        
+        this.animations.add(mixer);
+        
+        mixer.addEventListener("finished", () => {
+            this.animations.delete(mixer);
+        })
+
+        this.currentCameraPosition = position;
+    }
+
     private mouseMoveHandler = (e: MouseEvent) => {
         this.mouse.set(e.clientX / this.renderer.domElement.clientWidth, e.clientY / this.renderer.domElement.clientHeight);
 
@@ -221,6 +250,10 @@ export class CanvasView implements View {
     }
 
     private initScene() {
+        this.camera.position.copy(this.config.assets.cameras.front.position);
+        this.camera.rotation.copy(this.config.assets.cameras.front.rotation);
+        console.log(this.config.assets.cameras.front);
+
         const sky = new THREE.HemisphereLight(0xffffff, 0x0000ff);
         this.scene.add(sky);
 
@@ -286,6 +319,11 @@ export class CanvasView implements View {
         this.hatchAnimation = hatchAnimationMixer.clipAction(this.config.assets.hatchAnimation);
         this.hatchAnimation.loop = THREE.LoopOnce;
         this.animations.add(hatchAnimationMixer);
+
+
+        for(const obj of Object.values(this.config.assets.cameras)) {
+            obj.material.wireframe = true;
+        }
     }
 
     private sendEvent(e: CanvasEvent) {

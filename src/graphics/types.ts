@@ -4,6 +4,7 @@ type Update<Type, Data> = Data & {
     type: Type,
 }
 
+
 export interface Model {
     inputItemNumberID(char: string): Update<'screenUpdate', { state: string }>
     pressOk(): Update<'error', { message: string }> | Update<'success', { price: string }>
@@ -15,6 +16,8 @@ export interface Model {
 export interface View {
 
 }
+
+export type CameraPosition = "front" | "numpad";
 
 export type Assets = {
     displayFont: Font;
@@ -36,4 +39,8 @@ export type Assets = {
 
     coinAnimation: THREE.AnimationClip;
     hatchAnimation: THREE.AnimationClip;
+
+    cameras: Record<CameraPosition, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>;
+
+    cameraTracks: Record<CameraPosition, Record<CameraPosition, THREE.AnimationClip>>
 }

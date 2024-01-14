@@ -86,6 +86,14 @@ export const Display: FC<DisplayProps> = props => {
             view.setSlot(item.slot, "ss", item.color, item.items);
         }
 
+        setInterval(() => {
+            if(view.getCameraPosition() === "front") {
+                view.setCameraPosition("numpad")
+            } else {
+                view.setCameraPosition("front");
+            }
+        }, 1000)
+
         const sub = view.addEventListener((e) => {
             switch(e.type) {
                 case "numberPressed":
