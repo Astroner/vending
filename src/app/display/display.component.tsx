@@ -59,6 +59,33 @@ export const Display: FC<DisplayProps> = props => {
 
         let viewState = "";
 
+        const items = [
+            {
+                slot: 1,
+                color: 0xffffff,
+                items: 30
+            },
+            {
+                slot: 2,
+                color: 0xff11ff,
+                items: 2
+            },
+            {
+                slot: 5,
+                color: 0x000000,
+                items: 3
+            },
+            {
+                slot: 14,
+                color: 0xff00ff,
+                items: 6
+            }
+        ]
+
+        for(const item of items) {
+            view.setSlot(item.slot, "ss", item.color, item.items);
+        }
+
         const sub = view.addEventListener((e) => {
             switch(e.type) {
                 case "numberPressed":

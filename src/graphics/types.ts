@@ -27,6 +27,7 @@ export type Assets = {
     floor: THREE.Object3D;
     shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[];
     screen: THREE.Object3D;
+    items: Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>
 
     okBtn: THREE.Group;
     resetBtn: THREE.Group;

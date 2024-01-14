@@ -28,8 +28,15 @@ export type MovingCoin = {
     animationMixer: THREE.AnimationMixer
 }
 
+export type SlotInfo = {
+    slot: number;
+    id: string;
+    group: THREE.Group;
+}
+
 export class CanvasView implements View {
     private eventListeners = new Set<ViewEventListener>()
+    private slotsMap = new Map<number, SlotInfo>();
 
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
@@ -38,6 +45,7 @@ export class CanvasView implements View {
     private clock = new THREE.Clock();
 
     private displayText: THREE.Mesh | null = null;
+    private itemsClippingPlane: THREE.Plane | null = null;
 
     private mouse = new THREE.Vector2();
 
@@ -56,6 +64,7 @@ export class CanvasView implements View {
         this.renderer.setClearColor(0x0000a0);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.localClippingEnabled = true;
     }
 
     start() {
@@ -124,6 +133,46 @@ export class CanvasView implements View {
 
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
+    }
+
+    setSlot(slot: number, id: string, color: number, items: number) {
+        if(!this.itemsClippingPlane) return;
+        
+        const proto = this.config.assets.items.get(slot);
+
+        if(!proto) throw new Error("Unsupported slot " + slot);        
+
+        const group = new THREE.Group();
+
+        const material = proto.material.clone();
+        material.color.set(color);
+
+
+        material.clippingPlanes = [this.itemsClippingPlane];
+
+        let nextPosition = proto.position.clone();
+        for(let i = 0; i < items; i++) {
+            const newItem = proto.clone();
+            newItem.visible = true;
+            newItem.material = material;
+            newItem.position.copy(nextPosition);
+            group.add(newItem);
+
+            nextPosition = nextPosition.clone();
+            nextPosition.x -= .1;
+        }
+
+        const prevSlot = this.slotsMap.get(slot);
+        if(prevSlot) {
+            prevSlot.group.removeFromParent();
+        }
+        this.slotsMap.set(slot, {
+            group,
+            id,
+            slot
+        });
+
+        this.scene.add(group);
     }
 
     addEventListener(cb: ViewEventListener) {
@@ -200,7 +249,7 @@ export class CanvasView implements View {
         });
 
         const mesh = new THREE.Mesh(geometry, [
-            new THREE.MeshBasicMaterial( { color: 0x000000 } )
+            new THREE.MeshBasicMaterial({ color: 0x000000 })
         ])
 
         mesh.rotateY(Math.PI / 2);
@@ -213,6 +262,16 @@ export class CanvasView implements View {
 
 
         this.config.assets.coin.visible = false;
+
+
+        for(const item of this.config.assets.items.values()) {
+            item.visible = false;
+        }
+
+        const box = new THREE.Box3().setFromObject(this.config.assets.shelves[0]);
+
+        this.itemsClippingPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), box.max.x);
+        this.scene.add(new THREE.PlaneHelper(this.itemsClippingPlane, 15, 0xff0000));
     }
 
     private sendEvent(e: CanvasEvent) {

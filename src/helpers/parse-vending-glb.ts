@@ -5,6 +5,8 @@ import { Assets } from "../graphics/types";
 export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
     const numbers: THREE.Group[] = [];
     const shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
+    const items = new Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>();
+
     let body: THREE.Group | null = null;
     let glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
     let floor: THREE.Object3D | null = null;
@@ -50,6 +52,24 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 case "Shelf-3":
                 case "Shelf-4":
                     shelves[+obj.name.split("-")[1]] = obj;
+                    return;
+
+                case "Item-1":
+                case "Item-2":
+                case "Item-3":
+                case "Item-4":
+                case "Item-5":
+                case "Item-6":
+                case "Item-7":
+                case "Item-8":
+                case "Item-9":
+                case "Item-10":
+                case "Item-11":
+                case "Item-12":
+                case "Item-13":
+                case "Item-14":
+                case "Item-15":
+                    items.set(+obj.name.split("-")[1], obj);
                     return;
             };
 
@@ -98,7 +118,8 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !okBtn ||
         !resetBtn ||
         !coin ||
-        !coinAnimation
+        !coinAnimation ||
+        items.size < 15
     ) throw new Error("Couldn't parse GLB");
 
     return {
@@ -112,6 +133,7 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         okBtn,
         resetBtn,
         coin,
-        coinAnimation
+        coinAnimation,
+        items
     }
 }
