@@ -39,8 +39,14 @@ export type Assets = {
 
     coinAnimation: THREE.AnimationClip;
     hatchAnimation: THREE.AnimationClip;
+    buttonPressAnimation: THREE.AnimationClip;
 
     cameras: Record<CameraPosition, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>;
 
     cameraTracks: Record<CameraPosition, Record<CameraPosition, THREE.AnimationClip>>
+
+    numpadHighlight: {
+        square: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+        plane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+    }
 }

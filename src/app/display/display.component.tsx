@@ -16,6 +16,8 @@ export const Display: FC<DisplayProps> = props => {
     
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     
+    const [isPointer, setIsPointer] = useState(false);
+
     const view = useMemo(() => {
         if(!canvas || !containerRef.current) return null;
 
@@ -86,13 +88,6 @@ export const Display: FC<DisplayProps> = props => {
             view.setSlot(item.slot, "ss", item.color, item.items);
         }
 
-        setInterval(() => {
-            if(view.getCameraPosition() === "front") {
-                view.setCameraPosition("numpad")
-            } else {
-                view.setCameraPosition("front");
-            }
-        }, 1000)
 
         const sub = view.addEventListener((e) => {
             switch(e.type) {
@@ -108,6 +103,21 @@ export const Display: FC<DisplayProps> = props => {
                     viewState = "ok";
                     view.insertCoin();
                     view.openCloseHatch();
+
+                    view.getCameraPosition() !== "front" && view.setCameraPosition("front");
+
+                    break;
+
+                case "numpadAreaClicked":
+                    view.setCameraPosition("numpad");
+                    break;
+
+                case "keyHover":
+                    setIsPointer(true);
+                    break;
+
+                case "keyLeave":
+                    setIsPointer(false);
                     break;
             }
 
@@ -121,7 +131,7 @@ export const Display: FC<DisplayProps> = props => {
 
 
     return (
-        <div className={cn.root} ref={containerRef}>
+        <div className={cn.root} ref={containerRef} style={{ cursor: isPointer ? "pointer" : "default" }}>
             <canvas ref={setCanvas} />
         </div>
     )

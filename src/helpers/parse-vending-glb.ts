@@ -3,6 +3,7 @@ import { GLTF } from "three/examples/jsm/Addons.js";
 import { Assets } from "../graphics/types";
 
 export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
+
     const numbers: THREE.Group[] = [];
     const shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
     const items = new Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>();
@@ -19,12 +20,16 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
     let coinAnimation: THREE.AnimationClip | null = null;
     let hatchAnimation: THREE.AnimationClip | null = null;
+    let buttonPressAnimation: THREE.AnimationClip | null = null;
     
     let frontCamera: THREE.Object3D | null = null;
     let numpadCamera: THREE.Object3D | null = null;
 
     let cameraFrontToNumpad: THREE.AnimationClip | null = null;
     let cameraNumpadToFront: THREE.AnimationClip | null = null;
+
+    let numpadHighlightPlane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
+    let numpadHighlightSquare: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
 
 
     for(const animation of glb.animations) {
@@ -44,10 +49,16 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             case "camera-numpad-to-front":
                 cameraNumpadToFront = animation;
                 break;
+
+            case "ButtonPress":
+                buttonPressAnimation = animation;
+                break;
         }
     }
 
     glb.scene.traverse(obj => {
+        // console.log(obj.name, obj)
+
         switch(obj.name) {
             case "Floor":
                 floor = obj;
@@ -106,6 +117,14 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 case "Item-15":
                     items.set(+obj.name.split("-")[1], obj);
                     return;
+
+                case "highlight-keypad":
+                    numpadHighlightSquare = obj;
+                    return;
+
+                case "highlight-keypad-plane":
+                    numpadHighlightPlane = obj;
+                    return;
             };
 
             return;
@@ -143,6 +162,11 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         }
     })
 
+    console.log({
+        plane: numpadHighlightPlane,
+        square: numpadHighlightSquare
+    })
+
     if(
         !body || 
         !glass || 
@@ -160,7 +184,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !frontCamera ||
         !numpadCamera ||
         !cameraFrontToNumpad ||
-        !cameraNumpadToFront
+        !cameraNumpadToFront ||
+        !buttonPressAnimation ||
+        !numpadHighlightSquare ||
+        !numpadHighlightPlane
     ) throw new Error("Couldn't parse GLB");
 
     for(const track of cameraFrontToNumpad.tracks.concat(cameraNumpadToFront.tracks)) {
@@ -168,6 +195,8 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             track.name = "." + track.name.split(".")[1];
         }
     }
+
+    buttonPressAnimation.tracks[0].name = ".position";
 
     return {
         scene: glb.scene,
@@ -184,6 +213,7 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         items,
         hatchAnimation,
         hatch,
+        buttonPressAnimation,
         cameras: {
             front: frontCamera,
             numpad: numpadCamera
@@ -197,6 +227,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 front: cameraNumpadToFront,
                 numpad: null as any,
             }
+        },
+        numpadHighlight: {
+            plane: numpadHighlightPlane,
+            square: numpadHighlightSquare
         }
     }
 }

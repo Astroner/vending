@@ -20,6 +20,9 @@ export type CanvasEvent =
     }>
     | ViewEventTemplate<"okPressed">
     | ViewEventTemplate<"resetPressed">
+    | ViewEventTemplate<"numpadAreaClicked">
+    | ViewEventTemplate<"keyHover">
+    | ViewEventTemplate<"keyLeave">
 
 export type ViewEventListener = (e: CanvasEvent) => void;
 
@@ -55,6 +58,8 @@ export class CanvasView implements View {
     private hatchAnimation: THREE.AnimationAction | null = null;
 
     private currentCameraPosition: CameraPosition = "front";
+
+    private buttonAnimations = new Map<string, THREE.AnimationAction>();
     
     constructor(private config: Configuration) {
         this.camera = new THREE.PerspectiveCamera(45, config.width / config.height);
@@ -220,6 +225,18 @@ export class CanvasView implements View {
         })
 
         this.currentCameraPosition = position;
+
+        switch(this.currentCameraPosition) {
+            case "front":
+                this.config.assets.numpadHighlight.plane.visible = true;
+                this.config.assets.numpadHighlight.square.visible = true;
+                break;
+            
+            case "numpad":
+                this.config.assets.numpadHighlight.plane.visible = false;
+                this.config.assets.numpadHighlight.square.visible = false;
+                break;
+        }
     }
 
     private mouseMoveHandler = (e: MouseEvent) => {
@@ -227,12 +244,27 @@ export class CanvasView implements View {
 
         this.raycaster.setFromCamera(new THREE.Vector2(this.mouse.x * 2 - 1, this.mouse.y * -2 + 1), this.camera);
 
+        if(this.currentCameraPosition === "front") {
+            const [hits] = this.raycaster.intersectObject(this.config.assets.numpadHighlight.plane);
+
+            if(hits) {
+                this.config.assets.numpadHighlight.square.material.opacity = 1;
+            } else {
+                this.config.assets.numpadHighlight.square.material.opacity = 0;
+            }
+
+            return;
+        } else {
+            this.config.assets.numpadHighlight.square.material.opacity = 0;
+        }
+
         const [intersection] = this.raycaster.intersectObjects(this.config.assets.numbers.concat([this.config.assets.okBtn, this.config.assets.resetBtn]));
         
-
-        // if(intersection && intersection.object.parent) {
-        //     this.config.assets.numbers[+intersection.object.parent.name].visible = false;
-        // }
+        if(intersection && intersection.object.parent) {
+            this.sendEvent({ type: "keyHover" })
+        } else {
+            this.sendEvent({ type: "keyLeave" })
+        }
     }
 
     private mouseClickHandler = (e: MouseEvent) => {
@@ -240,9 +272,25 @@ export class CanvasView implements View {
 
         this.raycaster.setFromCamera(new THREE.Vector2(this.mouse.x * 2 - 1, this.mouse.y * -2 + 1), this.camera);
 
+        if(this.currentCameraPosition === "front") {
+            const [hits] = this.raycaster.intersectObject(this.config.assets.numpadHighlight.plane);
+
+            if(hits) {
+                this.sendEvent({ type: "numpadAreaClicked" })   
+            }
+
+            return;
+        }
+
         const [intersection] = this.raycaster.intersectObjects(this.config.assets.numbers.concat([this.config.assets.okBtn, this.config.assets.resetBtn]));
-        
+
         if(intersection && intersection.object.parent) {
+            const action = this.buttonAnimations.get(intersection.object.parent.name);
+            if(action) {
+                action.reset();
+                action.play();
+            }
+
             if(!isNaN(+intersection.object.parent.name)) this.sendEvent({ type: "numberPressed", key: +intersection.object.parent.name })
             else if(intersection.object.parent.name === "ok") this.sendEvent({ type: "okPressed" })
             else this.sendEvent({ type: "resetPressed" })
@@ -252,7 +300,7 @@ export class CanvasView implements View {
     private initScene() {
         this.camera.position.copy(this.config.assets.cameras.front.position);
         this.camera.rotation.copy(this.config.assets.cameras.front.rotation);
-        console.log(this.config.assets.cameras.front);
+        console.log(this.config.assets.numbers);
 
         const sky = new THREE.HemisphereLight(0xffffff, 0x0000ff);
         this.scene.add(sky);
@@ -324,6 +372,24 @@ export class CanvasView implements View {
         for(const obj of Object.values(this.config.assets.cameras)) {
             obj.material.wireframe = true;
         }
+
+
+        for(const obj of this.config.assets.numbers.concat([this.config.assets.okBtn, this.config.assets.resetBtn])) {
+            const mixer = new THREE.AnimationMixer(obj);
+            this.animations.add(mixer);
+
+            const action = mixer.clipAction(this.config.assets.buttonPressAnimation);
+            action.loop = THREE.LoopOnce;
+
+            this.buttonAnimations.set(obj.name, action);
+        }
+
+
+        this.config.assets.numpadHighlight.plane.material.transparent = true;
+        this.config.assets.numpadHighlight.plane.material.opacity = 0;
+
+        this.config.assets.numpadHighlight.square.material.transparent = true;
+        this.config.assets.numpadHighlight.square.material.opacity = 0;
     }
 
     private sendEvent(e: CanvasEvent) {
