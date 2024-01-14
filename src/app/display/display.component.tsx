@@ -103,6 +103,7 @@ export const Display: FC<DisplayProps> = props => {
                     viewState = "ok";
                     view.insertCoin();
                     view.openCloseHatch();
+                    view.giveChange(15);
 
                     view.getCameraPosition() !== "front" && view.setCameraPosition("front");
 

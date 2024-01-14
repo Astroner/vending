@@ -60,7 +60,7 @@ export class CanvasView implements View {
     private currentCameraPosition: CameraPosition = "front";
 
     private buttonAnimations = new Map<string, THREE.AnimationAction>();
-    
+
     constructor(private config: Configuration) {
         this.camera = new THREE.PerspectiveCamera(45, config.width / config.height);
         this.camera.position.x = 2;
@@ -230,12 +230,33 @@ export class CanvasView implements View {
             case "front":
                 this.config.assets.numpadHighlight.plane.visible = true;
                 this.config.assets.numpadHighlight.square.visible = true;
+                this.sendEvent({ type: "keyLeave" });
                 break;
             
             case "numpad":
                 this.config.assets.numpadHighlight.plane.visible = false;
                 this.config.assets.numpadHighlight.square.visible = false;
                 break;
+        }
+    }
+
+    giveChange(coins: number) {
+        for(let i = 0; i < coins; i++) {
+            const coin = this.config.assets.changeCoin.clone(true);
+
+            const mixer = new THREE.AnimationMixer(coin);
+            this.animations.add(mixer);
+            mixer.addEventListener("finished", () => {
+                this.animations.delete(mixer);
+                coin.removeFromParent();
+            })
+
+            const action = mixer.clipAction(this.config.assets.changeCoinAnimation);
+            action.loop = THREE.LoopOnce;
+            action.startAt(i / 6);
+            action.play();
+
+            this.scene.add(coin);
         }
     }
 
@@ -249,8 +270,10 @@ export class CanvasView implements View {
 
             if(hits) {
                 this.config.assets.numpadHighlight.square.material.opacity = 1;
+                this.sendEvent({ type: "keyHover" });
             } else {
                 this.config.assets.numpadHighlight.square.material.opacity = 0;
+                this.sendEvent({ type: "keyLeave" });
             }
 
             return;

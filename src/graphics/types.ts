@@ -49,4 +49,7 @@ export type Assets = {
         square: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
         plane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
     }
+
+    changeCoin: THREE.Object3D;
+    changeCoinAnimation: THREE.AnimationClip;
 }

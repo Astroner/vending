@@ -32,6 +32,9 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
     let numpadHighlightSquare: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
 
 
+    let changeCoin: THREE.Object3D | null = null;
+    let changeCoinAnimation: THREE.AnimationClip | null = null;
+
     for(const animation of glb.animations) {
         switch(animation.name) {
             case "CoinAction":
@@ -52,6 +55,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
             case "ButtonPress":
                 buttonPressAnimation = animation;
+                break;
+            
+            case "ChangeCoinAnimation":
+                changeCoinAnimation = animation;
                 break;
         }
     }
@@ -82,6 +89,10 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
 
             case "camera-numpad":
                 numpadCamera = obj;
+                return;
+
+            case "ChangeCoin":
+                changeCoin = obj;
                 return;
         }
 
@@ -187,7 +198,9 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !cameraNumpadToFront ||
         !buttonPressAnimation ||
         !numpadHighlightSquare ||
-        !numpadHighlightPlane
+        !numpadHighlightPlane ||
+        !changeCoinAnimation ||
+        !changeCoin
     ) throw new Error("Couldn't parse GLB");
 
     for(const track of cameraFrontToNumpad.tracks.concat(cameraNumpadToFront.tracks)) {
@@ -231,6 +244,8 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         numpadHighlight: {
             plane: numpadHighlightPlane,
             square: numpadHighlightSquare
-        }
+        },
+        changeCoin,
+        changeCoinAnimation
     }
 }
