@@ -65,7 +65,7 @@ export const Display: FC<DisplayProps> = props => {
             {
                 slot: 1,
                 color: 0xffffff,
-                items: 30
+                items: 10
             },
             {
                 slot: 2,
@@ -100,12 +100,17 @@ export const Display: FC<DisplayProps> = props => {
                     break;
 
                 case "okPressed":
+                    const slot = +viewState;
+
+                    if(!isNaN(slot)) {
+                        view.dropItem(slot);
+                    }
                     viewState = "ok";
                     view.insertCoin();
                     view.openCloseHatch();
                     view.giveChange(15);
 
-                    view.getCameraPosition() !== "front" && view.setCameraPosition("front");
+                    // view.getCameraPosition() !== "front" && view.setCameraPosition("front");
 
                     break;
 

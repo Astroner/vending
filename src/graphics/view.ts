@@ -50,7 +50,8 @@ export class CanvasView implements View {
     private clock = new THREE.Clock();
 
     private displayText: THREE.Mesh | null = null;
-    private itemsClippingPlane: THREE.Plane | null = null;
+    private itemsClippingPlanes: THREE.Plane[] | null = null;
+    private shiftPerItem: number | null = null;
 
     private mouse = new THREE.Vector2();
 
@@ -83,7 +84,7 @@ export class CanvasView implements View {
 
         this.initScene();
 
-        // const orbit = new OrbitControls(this.camera, this.renderer.domElement);
+        const orbit = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.renderer.setAnimationLoop(() => {
             this.renderer.render(this.scene, this.camera);
@@ -94,7 +95,7 @@ export class CanvasView implements View {
                 anim.update(delta);
             }
 
-            // orbit.update();
+            orbit.update();
         })
     }
 
@@ -148,7 +149,7 @@ export class CanvasView implements View {
     }
 
     setSlot(slot: number, id: string, color: number, items: number) {
-        if(!this.itemsClippingPlane) return;
+        if(!this.itemsClippingPlanes) return;
         
         const proto = this.config.assets.items.get(slot);
 
@@ -160,7 +161,7 @@ export class CanvasView implements View {
         material.color.set(color);
 
 
-        material.clippingPlanes = [this.itemsClippingPlane];
+        material.clippingPlanes = this.itemsClippingPlanes;
 
         let nextPosition = proto.position.clone();
         for(let i = 0; i < items; i++) {
@@ -258,6 +259,16 @@ export class CanvasView implements View {
 
             this.scene.add(coin);
         }
+    }
+
+    dropItem(slot: number) {
+        if(!this.shiftPerItem) return;
+
+        const slotInfo = this.slotsMap.get(slot);
+
+        if(!slotInfo) return;
+        
+        slotInfo.group.position.x += this.shiftPerItem;
     }
 
     private mouseMoveHandler = (e: MouseEvent) => {
@@ -380,10 +391,20 @@ export class CanvasView implements View {
             item.visible = false;
         }
 
+        const itemBox = new THREE.Box3().setFromObject(this.config.assets.items.get(1)!);
+        this.shiftPerItem = itemBox.max.x - itemBox.min.x + .027;
+
+
         const box = new THREE.Box3().setFromObject(this.config.assets.shelves[0]);
 
-        this.itemsClippingPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), box.max.x);
-        this.scene.add(new THREE.PlaneHelper(this.itemsClippingPlane, 15, 0xff0000));
+        this.itemsClippingPlanes = [
+            new THREE.Plane(new THREE.Vector3(1, 0, 0), box.max.x),
+            new THREE.Plane(new THREE.Vector3(-1, 0, 0), -box.min.x + .17),
+        ];
+
+        for(const plane of this.itemsClippingPlanes) {
+            this.scene.add(new THREE.PlaneHelper(plane, 15, 0xff0000));
+        }
 
 
         const hatchAnimationMixer = new THREE.AnimationMixer(this.config.assets.hatch);
