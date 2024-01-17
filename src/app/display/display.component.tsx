@@ -64,13 +64,16 @@ export const Display: FC<DisplayProps> = (props) => {
         });
     }, []);
 
-    const changeSlot = useCallback((index: number, info: SlotInfo) => {
+    const changeSlot = useCallback((index: number, update: Partial<SlotInfo>) => {
         setEditableInventory((prev) => {
             if (!prev) return null;
 
             const next = prev.slice(0);
 
-            next[index] = info;
+            next[index] = {
+                ...next[index],
+                ...update
+            };
 
             return next;
         });

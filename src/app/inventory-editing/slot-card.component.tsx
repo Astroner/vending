@@ -13,7 +13,7 @@ export type SlotCardProps = {
 
     maxItems: number;
 
-    onChange: (index: number, info: SlotInfo) => void;
+    onChange: (index: number, info: Partial<SlotInfo>) => void;
     onDelete: (index: number) => void;
 };
 
@@ -29,11 +29,10 @@ export const SlotCard: FC<SlotCardProps> = memo(({ onChange, ...props }) => {
             const asNumber = Number.parseInt(e.hex.slice(1), 16);
 
             onChange(props.index, {
-                ...props.info,
                 color: asNumber,
             });
         },
-        [onChange, props.index, props.info],
+        [onChange, props.index],
     );
 
     const closePicker = useCallback(() => {
@@ -43,11 +42,10 @@ export const SlotCard: FC<SlotCardProps> = memo(({ onChange, ...props }) => {
     const changePrice = useCallback(
         (price: number) => {
             onChange(props.index, {
-                ...props.info,
                 price,
             });
         },
-        [onChange, props.index, props.info],
+        [onChange, props.index],
     );
 
     const changeItems = useCallback(

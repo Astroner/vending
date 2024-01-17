@@ -12,7 +12,7 @@ export type InventoryEditingProps = {
     maxItems: number;
 
     onSlotAdd: VoidFunction;
-    onSlotChange: (index: number, update: SlotInfo) => void;
+    onSlotChange: (index: number, update: Partial<SlotInfo>) => void;
     onSlotDelete: (index: number) => void;
 
     onSubmit: (next: SlotInfo[]) => void;
