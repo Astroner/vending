@@ -4,6 +4,8 @@ import { Assets } from "@/src/graphics/types";
 import { View } from "@/src/graphics/view";
 import { useEffect, useMemo } from "react";
 
+const MOBILE_WIDTH = 900;
+
 export const useGraphics = (
     initialSlots: SlotInfo[],
     canvas: HTMLCanvasElement | null,
@@ -17,13 +19,20 @@ export const useGraphics = (
     const view = useMemo(() => {
         if (!canvas || !container) return null;
 
-        return new View({
+        const view = new View({
             canvas: canvas,
             assets: assets,
             width: container.clientWidth,
             height: container.clientHeight,
             initialText: model.getDisplay(),
         });
+
+        if(container.clientWidth < MOBILE_WIDTH) {
+            view.setHighlight(false);
+            view.setCameraAdjustments(false);
+        }
+
+        return view;
     }, [canvas, assets, model, container]);
 
     const controller = useMemo(() => {
@@ -40,7 +49,7 @@ export const useGraphics = (
         const handler = () => {
             view.setSize(container.clientWidth, container.clientHeight);
 
-            if (container.clientWidth < 900) {
+            if (container.clientWidth < MOBILE_WIDTH) {
                 view.setHighlight(false);
                 view.setCameraAdjustments(false);
             } else {

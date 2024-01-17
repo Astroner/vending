@@ -30,7 +30,7 @@ export const Display: FC<DisplayProps> = (props) => {
         props.assets,
     );
 
-    const [modelState, setModelState] = useState<ModelState>("waitForInput");
+    const [modelState, setModelState] = useState<ModelState>(model.getState());
     const [isPointer, setIsPointer] = useState(false);
     const [cameraPosition, setCameraPosition] =
         useState<CameraPosition>("front");
