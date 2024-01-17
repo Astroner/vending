@@ -75,7 +75,7 @@ export const SlotCard: FC<SlotCardProps> = memo(({ onChange, ...props }) => {
                         <div className={cn.slot__input__label}>
                             Price
                         </div>
-                        <NumberInput min={1} value={props.info.price} onChange={changePrice} />
+                        <NumberInput min={1} max={999} value={props.info.price} onChange={changePrice} />
                     </div>
                 </div>
             </div>

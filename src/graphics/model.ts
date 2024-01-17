@@ -66,6 +66,10 @@ export class Model {
         }
     }
 
+    getState() {
+        return this.state;
+    }
+
     getDisplay() {
         return this.displayText;
     }
@@ -124,7 +128,8 @@ export class Model {
         this.updateDisplay(getRandomHi());
 
         if(shouldReturnCoins) {
-            const returnCoins = Model.splitIntoCoins(this.moneyInside)
+            const returnCoins = Model.splitIntoCoins(this.moneyInside);
+            this.moneyInside = 0;
             this.sendEvent({ type: "returnCash", coins: returnCoins })
         }
     }

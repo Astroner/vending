@@ -19,7 +19,7 @@ docker container run --name vending -d -p 3000:3000 vending
 ## Why do we need PreloadedDisplay component?
 To split bundle and load heavy THREE.js lib separately 
 
-## What are the interactive areas in on the model?
+## What are the interactive areas on the model?
  - Keypad to select items
  - Glass to do CRUD operations
  - Hatch just for fun
@@ -29,4 +29,4 @@ To split bundle and load heavy THREE.js lib separately
 It happens in _src/app/page.tsx_. There we call __requestDBData()__ function to get mock data. It is SSR way to do request.
 
 ## What is the general structure?
-Generally speaking, we have graphic(THREE.js) part and React.js part. First one is written following MVC architecture and the second one is just common Next.js app. MVC was chosen because of it's simplicity.
+Generally speaking, we have graphic(THREE.js) part located in _src/graphics/_ and React.js part. First one is written following the MVC architecture and the second one is just common Next.js app. MVC was chosen because of it's simplicity.

@@ -8,10 +8,11 @@ import { Assets, CameraPosition } from "../../graphics/types";
 import { Coin, Model, ModelState, SlotInfo } from "@/src/graphics/model";
 
 import { useGraphics } from "./use-graphics";
-import { InventoryEditing } from "../invetory-editing/invetory-editing.component";
+import { InventoryEditing } from "../inventory-editing/invetory-editing.component";
 import { Coins } from "./coins.component";
 
 import cn from "./display.module.scss";
+import { WalletIcon } from "@/src/icons/wallet.icon";
 
 export interface DisplayProps {
     assets: Assets,
@@ -26,10 +27,12 @@ export const Display: FC<DisplayProps> = props => {
     const { model, view } = useGraphics(props.initialSlots, canvas, containerRef.current, props.assets);
     
     const [modelState, setModelState] = useState<ModelState>("waitForInput");
-    const [pocket, setPocket] = useState<Coin[]>(props.initialWallet);
     const [isPointer, setIsPointer] = useState(false);
     const [cameraPosition, setCameraPosition] = useState<CameraPosition>("front");
+
     const [editableInventory, setEditableInventory] = useState<null | SlotInfo[]>(null);
+    const [pocket, setPocket] = useState<Coin[]>(props.initialWallet);
+    const [isPocketVisible, setIsPocketVisible] = useState(false);
    
 
     const addSlot = useCallback(() => {
@@ -93,6 +96,7 @@ export const Display: FC<DisplayProps> = props => {
     }, [])
 
     const selectCoin = useCallback((index: number, coin: Coin) => {
+        if(model.getState() !== "acceptingCoins") return;
         setPocket(prev => prev.slice(0, index).concat(prev.slice(index + 1)));
         model.insertCoin(coin);
         view?.insertCoin();
@@ -150,7 +154,13 @@ export const Display: FC<DisplayProps> = props => {
         <div className={cn.root} ref={containerRef} style={{ cursor: isPointer ? "pointer" : "default" }}>
             <canvas ref={setCanvas} />
             {cameraPosition !== "front" && <div className={cn.back} onClick={() => view?.setCameraPosition("front")}></div>}
-            <Coins isOpen={cameraPosition === "numpad" && modelState === "acceptingCoins"} coins={pocket} onSelect={selectCoin} />
+
+            <Coins isOpen={(cameraPosition === "numpad" && modelState === "acceptingCoins") || isPocketVisible} coins={pocket} onSelect={selectCoin} />
+            
+            <button className={cn.wallet} onClick={() => setIsPocketVisible(p => !p)}>
+                <WalletIcon />
+            </button>
+
             {editableInventory && (
                 <InventoryEditing 
                     value={editableInventory} 
