@@ -1,13 +1,13 @@
-"use client";
+"use server"
 
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import { requestDBData } from "../helpers/request-db-data";
 import { PreloadedDisplay } from "./display/preloaded-display.component";
 
-export default function Home() {
+export default async function Home() {
 
-  return (
-    <ErrorBoundary errorComponent={(err) => <div>{err.error.message}</div>}>
-      <PreloadedDisplay />
-    </ErrorBoundary>
-  )
+    const initialData = await requestDBData();
+
+    return (
+        <PreloadedDisplay initialSlots={initialData} initialWallet={[1, 2, 5, 10, 10, 10, 10]} />
+    )
 }

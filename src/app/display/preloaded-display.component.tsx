@@ -1,35 +1,62 @@
+"use client"
+
 import dynamic from "next/dynamic";
 import { FC } from "react";
-import { parseVendingGLB } from "../../helpers/parse-vending-glb";
-import { loadFont } from "../../helpers/asset-loaders";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 
-export const PreloadedDisplay = dynamic(
+import type { DisplayProps } from "./display.component";
+
+import cn from "./display.module.scss";
+
+export type PreloadedDisplayProps = Omit<DisplayProps, 'assets'>
+
+const DynamicDisplay = dynamic(
     async () => {
-        const { loadGLB } = await import('../../helpers/asset-loaders')
+        const { loadGLB, loadFont } = await import('../../helpers/asset-loaders')
 
-        const [vendingGLB, displayFont, { Display }] = await Promise.all([
+        const [
+            vendingGLB, 
+            displayFont, 
+            { Display }, 
+            { parseVendingGLB }
+        ] = await Promise.all([
             loadGLB("/assets/vending.glb"),
             loadFont("/assets/display-font.json"),
             import("./display.component"),
+            import("../../helpers/parse-vending-glb")
         ]);
 
         const parsedVending = parseVendingGLB(vendingGLB);
     
-        const PreloadedDisplay: FC = () => (
+        const DynamicDisplay: FC<PreloadedDisplayProps> = (props) => (
             <Display 
+                {...props}
                 assets={{ 
                     ...parsedVending, 
                     displayFont,
-                }} 
+                }}
             />
         )
 
-        return PreloadedDisplay
+        return DynamicDisplay
     }, 
     {
         ssr: false,
         loading: (props) => {
-            return <div>Loading</div>
+            return (
+                <div className={cn['loader-page']}>
+                    <div>Loading Vending Machine</div>
+                    <div className={cn.loader} />
+                </div>
+            )
         },
     }
 )
+
+export const PreloadedDisplay: FC<PreloadedDisplayProps> = props => {
+    return (
+        <ErrorBoundary errorComponent={(err) => <div>{err.error.message}</div>}>
+            <DynamicDisplay {...props} />
+        </ErrorBoundary>
+    )
+}

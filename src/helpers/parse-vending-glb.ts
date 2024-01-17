@@ -172,12 +172,7 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             }
         }
     })
-
-    console.log({
-        plane: numpadHighlightPlane,
-        square: numpadHighlightSquare
-    })
-
+    
     if(
         !body || 
         !glass || 

@@ -1,0 +1,36 @@
+.root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow-base {
+    width: 0; 
+    height: 0; 
+
+    background: none;
+
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent; 
+
+    cursor: pointer;
+}
+
+.decrement {
+    composes: arrow-base;
+    
+    border-right:10px solid white; 
+}
+
+.value {
+    width: 60px;
+
+    font-size: 20px;
+    text-align: center;
+}
+
+.increment {
+    composes: arrow-base;
+
+    border-left: 10px solid white;
+}

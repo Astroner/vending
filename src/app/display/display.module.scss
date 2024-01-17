@@ -5,4 +5,179 @@
     overflow: hidden;
 
     position: relative;
+
+    animation: fade-in .5s forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.back {
+    position: absolute;
+
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+    height: 200px;
+    
+    transition: opacity .3s;
+
+    background: rgb(241,255,0);
+    background: linear-gradient(0, rgba(241,255,0,.5) 0%, rgba(255,255,255,0) 100%);
+
+    opacity: 0;
+
+    cursor: pointer;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    @media screen and (max-width: 900px) {
+        opacity: 1;
+    }
+}
+
+.button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+
+    width: 30px;
+    height: 30px;
+
+    border: 3px solid rgba(242, 255, 0, 1);
+    border-radius: 3px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    opacity: .6;
+
+    transition: opacity .3s;
+
+    background: none;
+
+    svg {
+        fill: rgba(242, 255, 0, 1);
+    }
+    
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.pocket {
+    position: absolute;
+    top: 0;
+    padding: 20px 10px;
+
+    width: 400px;
+    height: 100%;
+
+    transition: left .3s, opacity .3s;
+
+    background: rgb(241,255,0);
+    background: linear-gradient(-90deg, rgba(241,255,0,.5) 0%, rgba(255,255,255,0) 100%);
+
+    &--open {
+        composes: pocket;
+
+        opacity: 1;
+
+        left: calc(100% - 400px);
+    }
+
+    &--closed {
+        composes: pocket;
+
+        opacity: 0;
+        
+        left: 100%;
+    }
+
+}
+
+.coins-container {
+    width: 100%;
+    
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: flex-start;
+
+    .coin {
+        margin-bottom: 20px;
+        margin-right: 20px;
+    }
+}
+
+.coin {
+    width: 100px;
+    height: 100px;
+
+    border: 4px solid #1c1f21;
+    border-radius: 50%;
+
+    background: #eeb501;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 40px;
+
+    color: #1c1f21;
+
+    cursor: pointer;
+}
+
+.loader-page {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    color: white;
+    font-size: 24px;
+}
+
+.loader {
+    width: 60px;
+    height: 60px;
+
+    border-top: 10px solid white;
+    border-left: 10px solid transparent;
+    border-bottom: 10px solid white;
+    border-right: 10px solid transparent;
+
+    border-radius: 50%;
+
+    margin-top: 20px;
+
+    animation: spin 1s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(270deg);
+    }
 }

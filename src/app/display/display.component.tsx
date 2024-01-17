@@ -1,144 +1,170 @@
 "use client"
 
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 
-import { CanvasView } from "../../graphics/view";
-import { Assets } from "../../graphics/types";
+
+import { Assets, CameraPosition } from "../../graphics/types";
+
+import { Coin, Model, ModelState, SlotInfo } from "@/src/graphics/model";
+
+import { useGraphics } from "./use-graphics";
+import { InventoryEditing } from "../invetory-editing/invetory-editing.component";
+import { Coins } from "./coins.component";
 
 import cn from "./display.module.scss";
 
 export interface DisplayProps {
-    assets: Assets
+    assets: Assets,
+    initialSlots: SlotInfo[],
+    initialWallet: Coin[],
 }
 
 export const Display: FC<DisplayProps> = props => {
     const containerRef = useRef<HTMLDivElement>(null);
-    
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+
+    const { model, view } = useGraphics(props.initialSlots, canvas, containerRef.current, props.assets);
     
+    const [modelState, setModelState] = useState<ModelState>("waitForInput");
+    const [pocket, setPocket] = useState<Coin[]>(props.initialWallet);
     const [isPointer, setIsPointer] = useState(false);
+    const [cameraPosition, setCameraPosition] = useState<CameraPosition>("front");
+    const [editableInventory, setEditableInventory] = useState<null | SlotInfo[]>(null);
+   
 
-    const view = useMemo(() => {
-        if(!canvas || !containerRef.current) return null;
+    const addSlot = useCallback(() => {
+        setEditableInventory(prev => {
+            if(!prev) return null;
 
-        return new CanvasView({
-            canvas: canvas,
-            assets: props.assets,
-            width: containerRef.current.clientWidth,
-            height: containerRef.current.clientHeight,
-            initialText: ""
+            const freeSlot = new Array(Model.TOTAL_SLOTS).fill(null).map((_, i) => i + 1).filter(slot => !prev.find(item => item.slot === slot))[0]
+
+            if(!freeSlot) return prev;
+
+            return [
+                ...prev,
+                {
+                    color: 0xffffff,
+                    count: 1,
+                    price: 1,
+                    slot: freeSlot
+                }
+            ]
         })
-    }, [canvas, props.assets])
+    }, [])
+
+    const changeSlot = useCallback((index: number, info: SlotInfo) => {
+        setEditableInventory(prev => {
+            if(!prev) return null;
+
+            const next = prev.slice(0);
+
+            next[index] = info;
+
+            return next;
+        })
+    }, [])
+
+    const deleteSlot = useCallback((index: number) => {
+        setEditableInventory(prev => {
+            if(!prev) return null;
+            
+            const next = prev.slice(0);
+
+            next.splice(index, 1);
+
+            return next;
+        })
+    }, [])
+
+    const updateInventory = useCallback((nextSlots: SlotInfo[]) => {
+        if(!view) return;
+        model.setSlots(nextSlots);
+
+        view.clearSlots();
+        for(const slot of nextSlots) {
+            view.setSlot(slot.slot, slot.color, slot.count);
+        }
+
+        setEditableInventory(null);
+    }, [view, model])
+
+    const closeEditor = useCallback(() => {
+        setEditableInventory(null);
+    }, [])
+
+    const selectCoin = useCallback((index: number, coin: Coin) => {
+        setPocket(prev => prev.slice(0, index).concat(prev.slice(index + 1)));
+        model.insertCoin(coin);
+        view?.insertCoin();
+    }, [model, view])
 
     useEffect(() => {
-        if(!view) return;
-
-        view.start();
-
-        return () => {
-            view.destroy();
-        }
-    }, [view])
-
-    useEffect(() => {
-        if(!view) return;
-
-        const handler = () => {
-            if(!containerRef.current) return;
-
-            view.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-        }
-
-        window.addEventListener("resize", handler)
-
-        return () => {
-            window.removeEventListener("resize", handler);
-        }
-    }, [view])
-
-    useEffect(() => {
-        if(!view) return;
-
-        let viewState = "";
-
-        const items = [
-            {
-                slot: 1,
-                color: 0xffffff,
-                items: 10
-            },
-            {
-                slot: 2,
-                color: 0xff11ff,
-                items: 2
-            },
-            {
-                slot: 5,
-                color: 0x000000,
-                items: 3
-            },
-            {
-                slot: 14,
-                color: 0xff00ff,
-                items: 6
-            }
-        ]
-
-        for(const item of items) {
-            view.setSlot(item.slot, "ss", item.color, item.items);
-        }
-
-
-        const sub = view.addEventListener((e) => {
+        const sub = model.addEventListener((e) => {
             switch(e.type) {
-                case "numberPressed":
-                    if(viewState.length < 3) viewState += e.key + "";
-                    break;
-                
-                case "resetPressed":
-                    viewState = "";
+                case "stateChange":
+                    setModelState(e.state)
                     break;
 
-                case "okPressed":
-                    const slot = +viewState;
-
-                    if(!isNaN(slot)) {
-                        view.dropItem(slot);
-                    }
-                    viewState = "ok";
-                    view.insertCoin();
-                    view.openCloseHatch();
-                    view.giveChange(15);
-
-                    // view.getCameraPosition() !== "front" && view.setCameraPosition("front");
-
-                    break;
-
-                case "numpadAreaClicked":
-                    view.setCameraPosition("numpad");
-                    break;
-
-                case "keyHover":
-                    setIsPointer(true);
-                    break;
-
-                case "keyLeave":
-                    setIsPointer(false);
+                case "returnCash":
+                    setPocket(prev => prev.concat(e.coins))
                     break;
             }
-
-            view.setText(viewState);
         })
 
         return () => {
             sub.unsubscribe();
         }
-    }, [view])
+    }, [model])
 
+    useEffect(() => {
+        if(!view) return;
+
+        const sub = view.addEventListener((e) => {
+            switch(e.type) {
+                case "keyHover":
+                    setIsPointer(true);
+                    break;
+                
+                case "keyLeave":
+                    setIsPointer(false);
+                    break;
+
+                case "cameraChange":
+                    setCameraPosition(e.position);
+                    break;
+
+                case "glassClick":
+                    view.setCameraPosition("front");
+                    setEditableInventory(model.getSlots());
+                    setIsPointer(false);
+                    break;
+            }
+        });
+
+        return () => {
+            sub.unsubscribe();
+        }
+    }, [model, view])
 
     return (
         <div className={cn.root} ref={containerRef} style={{ cursor: isPointer ? "pointer" : "default" }}>
             <canvas ref={setCanvas} />
+            {cameraPosition !== "front" && <div className={cn.back} onClick={() => view?.setCameraPosition("front")}></div>}
+            <Coins isOpen={cameraPosition === "numpad" && modelState === "acceptingCoins"} coins={pocket} onSelect={selectCoin} />
+            {editableInventory && (
+                <InventoryEditing 
+                    value={editableInventory} 
+                    maxItems={15}
+                    canAdd={editableInventory.length < Model.TOTAL_SLOTS} 
+                    
+                    onSlotAdd={addSlot} 
+                    onSlotChange={changeSlot} 
+                    onSlotDelete={deleteSlot}
+
+                    onSubmit={updateInventory}
+                    onClose={closeEditor} 
+                />
+            )}
         </div>
     )
 }

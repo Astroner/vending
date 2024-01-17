@@ -12,6 +12,7 @@
     "next": "14.0.4",
     "normalize.css": "^8.0.1",
     "react": "^18",
+    "react-color": "^2.19.3",
     "react-dom": "^18",
     "three": "^0.160.0"
   },
@@ -19,6 +20,7 @@
     "@next/bundle-analyzer": "^14.0.4",
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-color": "^3.0.11",
     "@types/react-dom": "^18",
     "@types/three": "^0.160.0",
     "eslint": "^8",

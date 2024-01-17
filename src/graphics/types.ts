@@ -1,20 +1,13 @@
 import type { Font } from "three/examples/jsm/Addons.js"
 
-type Update<Type, Data> = Data & {
-    type: Type,
+export type EventTemplate<T extends string, Data = {}> = Data & {
+    type: T
 }
 
+export type EventListener<E extends EventTemplate<any>> = (e: E) => void;
 
-export interface Model {
-    inputItemNumberID(char: string): Update<'screenUpdate', { state: string }>
-    pressOk(): Update<'error', { message: string }> | Update<'success', { price: string }>
-    pressReset(): Update<'reset', { screenState: string, coinsToReturn: number[] }>
-
-    insertCoin(value: number): Update<"success", { moneyNeeded: number }>
-}
-
-export interface View {
-
+export type Subscription = {
+    unsubscribe(): void;
 }
 
 export type CameraPosition = "front" | "numpad";
