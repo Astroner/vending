@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
+
 import { Assets } from "../graphics/types";
 
 export const parseVendingGLB = (glb: GLTF): Omit<Assets, "displayFont"> => {

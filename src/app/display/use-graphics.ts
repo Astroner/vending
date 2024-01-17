@@ -1,8 +1,9 @@
+import { useEffect, useMemo } from "react";
+
 import { Controller } from "@/src/graphics/controller";
 import { Model, SlotInfo } from "@/src/graphics/model";
 import { Assets } from "@/src/graphics/types";
 import { View } from "@/src/graphics/view";
-import { useEffect, useMemo } from "react";
 
 const MOBILE_WIDTH = 900;
 

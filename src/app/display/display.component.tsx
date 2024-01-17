@@ -2,16 +2,16 @@
 
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 
-import { Assets, CameraPosition } from "../../graphics/types";
 
 import { Coin, Model, ModelState, SlotInfo } from "@/src/graphics/model";
+import { WalletIcon } from "@/src/icons/wallet.icon";
 
 import { useGraphics } from "./use-graphics";
 import { InventoryEditing } from "../inventory-editing/invetory-editing.component";
 import { Coins } from "./coins.component";
+import { Assets, CameraPosition } from "../../graphics/types";
 
 import cn from "./display.module.scss";
-import { WalletIcon } from "@/src/icons/wallet.icon";
 
 export interface DisplayProps {
     assets: Assets;
