@@ -121,12 +121,22 @@
         rgba(255, 255, 255, 0) 100%
     );
 
+    overflow-y: auto;
+
+    @media screen and (max-width: 900px) {
+        width: 200px;
+    }
+    
     &--open {
         composes: pocket;
 
         opacity: 1;
 
         left: calc(100% - 400px);
+
+        @media screen and (max-width: 900px) {
+            left: calc(100% - 200px);
+        }
     }
 
     &--closed {
@@ -170,6 +180,11 @@
     color: #1c1f21;
 
     cursor: pointer;
+
+    @media screen and (max-width: 900px) {
+        width: 60px;
+        height: 60px;
+    }
 }
 
 .loader-page {
