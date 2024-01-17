@@ -255,8 +255,8 @@ export class View {
     }
 
     async dropItem(slot: number) {
-        this.vendingScene.dropItem(slot);
         await wait(1000);
+        this.vendingScene.dropItem(slot);
         this.fallAudio.play();
     }
 
