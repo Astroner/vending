@@ -2,14 +2,22 @@ import * as THREE from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import { Assets } from "../graphics/types";
 
-export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
-
+export const parseVendingGLB = (glb: GLTF): Omit<Assets, "displayFont"> => {
     const numbers: THREE.Group[] = [];
-    const shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
-    const items = new Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>();
+    const shelves: THREE.Mesh<
+        THREE.BufferGeometry,
+        THREE.MeshStandardMaterial
+    >[] = [];
+    const items = new Map<
+        number,
+        THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+    >();
 
     let body: THREE.Group | null = null;
-    let glass: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
+    let glass: THREE.Mesh<
+        THREE.BufferGeometry,
+        THREE.MeshStandardMaterial
+    > | null = null;
     let floor: THREE.Object3D | null = null;
     let screen: THREE.Object3D | null = null;
     let coin: THREE.Object3D | null = null;
@@ -21,22 +29,27 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
     let coinAnimation: THREE.AnimationClip | null = null;
     let hatchAnimation: THREE.AnimationClip | null = null;
     let buttonPressAnimation: THREE.AnimationClip | null = null;
-    
+
     let frontCamera: THREE.Object3D | null = null;
     let numpadCamera: THREE.Object3D | null = null;
 
     let cameraFrontToNumpad: THREE.AnimationClip | null = null;
     let cameraNumpadToFront: THREE.AnimationClip | null = null;
 
-    let numpadHighlightPlane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
-    let numpadHighlightSquare: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
-
+    let numpadHighlightPlane: THREE.Mesh<
+        THREE.BufferGeometry,
+        THREE.MeshStandardMaterial
+    > | null = null;
+    let numpadHighlightSquare: THREE.Mesh<
+        THREE.BufferGeometry,
+        THREE.MeshStandardMaterial
+    > | null = null;
 
     let changeCoin: THREE.Object3D | null = null;
     let changeCoinAnimation: THREE.AnimationClip | null = null;
 
-    for(const animation of glb.animations) {
-        switch(animation.name) {
+    for (const animation of glb.animations) {
+        switch (animation.name) {
             case "CoinAction":
                 coinAnimation = animation;
                 break;
@@ -48,7 +61,7 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             case "camera-front-to-numpad":
                 cameraFrontToNumpad = animation;
                 break;
-            
+
             case "camera-numpad-to-front":
                 cameraNumpadToFront = animation;
                 break;
@@ -56,17 +69,17 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             case "ButtonPress":
                 buttonPressAnimation = animation;
                 break;
-            
+
             case "ChangeCoinAnimation":
                 changeCoinAnimation = animation;
                 break;
         }
     }
 
-    glb.scene.traverse(obj => {
+    glb.scene.traverse((obj) => {
         // console.log(obj.name, obj)
 
-        switch(obj.name) {
+        switch (obj.name) {
             case "Floor":
                 floor = obj;
                 return;
@@ -74,7 +87,7 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
             case "Screen":
                 screen = obj;
                 return;
-            
+
             case "Coin":
                 coin = obj;
                 return;
@@ -96,13 +109,15 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 return;
         }
 
-        if(obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
-            switch(obj.name) {                
+        if (
+            obj instanceof THREE.Mesh &&
+            obj.material instanceof THREE.MeshStandardMaterial
+        ) {
+            switch (obj.name) {
                 case "Glass":
                     glass = obj;
                     return;
 
-                
                 case "Shelf-0":
                 case "Shelf-1":
                 case "Shelf-2":
@@ -136,13 +151,13 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 case "highlight-keypad-plane":
                     numpadHighlightPlane = obj;
                     return;
-            };
+            }
 
             return;
         }
 
-        if(obj instanceof THREE.Group) {
-            switch(obj.name) {
+        if (obj instanceof THREE.Group) {
+            switch (obj.name) {
                 case "0":
                 case "1":
                 case "2":
@@ -168,14 +183,13 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
                 case "reset":
                     resetBtn = obj;
                     return;
-                    
             }
         }
-    })
-    
-    if(
-        !body || 
-        !glass || 
+    });
+
+    if (
+        !body ||
+        !glass ||
         numbers.length < 10 ||
         shelves.length < 5 ||
         !floor ||
@@ -196,10 +210,13 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         !numpadHighlightPlane ||
         !changeCoinAnimation ||
         !changeCoin
-    ) throw new Error("Couldn't parse GLB");
+    )
+        throw new Error("Couldn't parse GLB");
 
-    for(const track of cameraFrontToNumpad.tracks.concat(cameraNumpadToFront.tracks)) {
-        if(track.name.includes("camera")) {
+    for (const track of cameraFrontToNumpad.tracks.concat(
+        cameraNumpadToFront.tracks,
+    )) {
+        if (track.name.includes("camera")) {
             track.name = "." + track.name.split(".")[1];
         }
     }
@@ -224,23 +241,23 @@ export const parseVendingGLB = (glb: GLTF): Omit<Assets, 'displayFont'> => {
         buttonPressAnimation,
         cameras: {
             front: frontCamera,
-            numpad: numpadCamera
+            numpad: numpadCamera,
         },
         cameraTracks: {
             front: {
                 front: null as any,
-                numpad: cameraFrontToNumpad
+                numpad: cameraFrontToNumpad,
             },
             numpad: {
                 front: cameraNumpadToFront,
                 numpad: null as any,
-            }
+            },
         },
         numpadHighlight: {
             plane: numpadHighlightPlane,
-            square: numpadHighlightSquare
+            square: numpadHighlightSquare,
         },
         changeCoin,
-        changeCoinAnimation
-    }
-}
+        changeCoinAnimation,
+    };
+};

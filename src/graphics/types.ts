@@ -1,14 +1,14 @@
-import type { Font } from "three/examples/jsm/Addons.js"
+import type { Font } from "three/examples/jsm/Addons.js";
 
 export type EventTemplate<T extends string, Data = {}> = Data & {
-    type: T
-}
+    type: T;
+};
 
 export type EventListener<E extends EventTemplate<any>> = (e: E) => void;
 
 export type Subscription = {
     unsubscribe(): void;
-}
+};
 
 export type CameraPosition = "front" | "numpad";
 
@@ -24,7 +24,10 @@ export type Assets = {
     hatch: THREE.Object3D;
     shelves: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[];
     screen: THREE.Object3D;
-    items: Map<number, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>
+    items: Map<
+        number,
+        THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+    >;
 
     okBtn: THREE.Group;
     resetBtn: THREE.Group;
@@ -34,15 +37,21 @@ export type Assets = {
     hatchAnimation: THREE.AnimationClip;
     buttonPressAnimation: THREE.AnimationClip;
 
-    cameras: Record<CameraPosition, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>;
+    cameras: Record<
+        CameraPosition,
+        THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+    >;
 
-    cameraTracks: Record<CameraPosition, Record<CameraPosition, THREE.AnimationClip>>
+    cameraTracks: Record<
+        CameraPosition,
+        Record<CameraPosition, THREE.AnimationClip>
+    >;
 
     numpadHighlight: {
-        square: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
-        plane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
-    }
+        square: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+        plane: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+    };
 
     changeCoin: THREE.Object3D;
     changeCoinAnimation: THREE.AnimationClip;
-}
+};

@@ -8,46 +8,46 @@ export const useGraphics = (
     initialSlots: SlotInfo[],
     canvas: HTMLCanvasElement | null,
     container: HTMLDivElement | null,
-    assets: Assets
+    assets: Assets,
 ) => {
     const model = useMemo(() => {
         return new Model(initialSlots);
-    }, [initialSlots])
+    }, [initialSlots]);
 
     const view = useMemo(() => {
-        if(!canvas || !container) return null;
+        if (!canvas || !container) return null;
 
         return new View({
             canvas: canvas,
             assets: assets,
             width: container.clientWidth,
             height: container.clientHeight,
-            initialText: model.getDisplay()
-        })
-    }, [canvas, assets, model, container])
+            initialText: model.getDisplay(),
+        });
+    }, [canvas, assets, model, container]);
 
     const controller = useMemo(() => {
-        if(!view) return null;
+        if (!view) return null;
 
         return new Controller(model, view);
     }, [model, view]);
 
     useEffect(() => {
-        if(!controller || !view || !container) return;
+        if (!controller || !view || !container) return;
 
         controller.start();
 
         const handler = () => {
             view.setSize(container.clientWidth, container.clientHeight);
 
-            if(container.clientWidth < 900) {
-                view.setHighlight(false)
-                view.setCameraAdjustments(false)
+            if (container.clientWidth < 900) {
+                view.setHighlight(false);
+                view.setCameraAdjustments(false);
             } else {
-                view.setHighlight(true)
-                view.setCameraAdjustments(true)
+                view.setHighlight(true);
+                view.setCameraAdjustments(true);
             }
-        }
+        };
 
         window.addEventListener("resize", handler);
 
@@ -55,9 +55,8 @@ export const useGraphics = (
             controller.stop();
 
             window.removeEventListener("resize", handler);
-        }
-    }, [controller, container, view])
-    
+        };
+    }, [controller, container, view]);
 
-    return { view, model }
-}
+    return { view, model };
+};

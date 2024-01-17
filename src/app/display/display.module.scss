@@ -6,7 +6,7 @@
 
     position: relative;
 
-    animation: fade-in .5s forwards;
+    animation: fade-in 0.5s forwards;
 }
 
 @keyframes fade-in {
@@ -27,11 +27,15 @@
 
     width: 100%;
     height: 200px;
-    
-    transition: opacity .3s;
 
-    background: rgb(241,255,0);
-    background: linear-gradient(0, rgba(241,255,0,.5) 0%, rgba(255,255,255,0) 100%);
+    transition: opacity 0.3s;
+
+    background: rgb(241, 255, 0);
+    background: linear-gradient(
+        0,
+        rgba(241, 255, 0, 0.5) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 
     opacity: 0;
 
@@ -63,16 +67,16 @@
 
     cursor: pointer;
 
-    opacity: .6;
+    opacity: 0.6;
 
-    transition: opacity .3s;
+    transition: opacity 0.3s;
 
     background: none;
 
     svg {
         fill: rgba(242, 255, 0, 1);
     }
-    
+
     &:hover {
         opacity: 1;
     }
@@ -106,10 +110,16 @@
     width: 400px;
     height: 100%;
 
-    transition: left .3s, opacity .3s;
+    transition:
+        left 0.3s,
+        opacity 0.3s;
 
-    background: rgb(241,255,0);
-    background: linear-gradient(-90deg, rgba(241,255,0,.5) 0%, rgba(255,255,255,0) 100%);
+    background: rgb(241, 255, 0);
+    background: linear-gradient(
+        -90deg,
+        rgba(241, 255, 0, 0.5) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 
     &--open {
         composes: pocket;
@@ -123,15 +133,14 @@
         composes: pocket;
 
         opacity: 0;
-        
+
         left: 100%;
     }
-
 }
 
 .coins-container {
     width: 100%;
-    
+
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;

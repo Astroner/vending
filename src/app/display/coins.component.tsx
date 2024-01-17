@@ -8,16 +8,18 @@ export type CoinsProps = {
     isOpen?: boolean;
     coins: Coin[];
     onSelect: (index: number, coin: Coin) => void;
-}
+};
 
-export const Coins: FC<CoinsProps> = memo(props => {
+export const Coins: FC<CoinsProps> = memo((props) => {
     return (
-        <div className={props.isOpen ? cn['pocket--open'] : cn['pocket--closed']}>
-            <div className={cn['coins-container']}>
+        <div
+            className={props.isOpen ? cn["pocket--open"] : cn["pocket--closed"]}
+        >
+            <div className={cn["coins-container"]}>
                 {props.coins.map((value, i) => (
-                    <div 
-                        className={cn.coin} 
-                        key={i} 
+                    <div
+                        className={cn.coin}
+                        key={i}
                         onClick={() => props.onSelect(i, value)}
                     >
                         {value}
@@ -25,5 +27,5 @@ export const Coins: FC<CoinsProps> = memo(props => {
                 ))}
             </div>
         </div>
-    )
-})
+    );
+});

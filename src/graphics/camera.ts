@@ -1,11 +1,16 @@
 import * as THREE from "three";
 
-export class ViewCamera<Position extends string> extends THREE.PerspectiveCamera {
+export class ViewCamera<
+    Position extends string,
+> extends THREE.PerspectiveCamera {
     constructor(
         public currentPosition: Position,
         aspectRatio: number,
         positions: Record<Position, THREE.Object3D>,
-        private transitions: Record<Position, Record<Position, THREE.AnimationClip>>
+        private transitions: Record<
+            Position,
+            Record<Position, THREE.AnimationClip>
+        >,
     ) {
         super(45, aspectRatio);
 
@@ -15,8 +20,8 @@ export class ViewCamera<Position extends string> extends THREE.PerspectiveCamera
 
     setPosition(position: Position): THREE.AnimationMixer | null {
         const animation = this.transitions[this.currentPosition][position];
-        
-        if(!animation) return null;
+
+        if (!animation) return null;
 
         const mixer = new THREE.AnimationMixer(this);
 
@@ -24,7 +29,7 @@ export class ViewCamera<Position extends string> extends THREE.PerspectiveCamera
         action.clampWhenFinished = true;
         action.loop = THREE.LoopOnce;
         action.play();
-        
+
         this.currentPosition = position;
 
         return mixer;

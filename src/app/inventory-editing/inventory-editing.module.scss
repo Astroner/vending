@@ -6,9 +6,9 @@
     width: 100%;
     height: 100%;
 
-    animation: fade-in .3s linear forwards;
+    animation: fade-in 0.3s linear forwards;
 
-    background-color: rgba($color: #000000, $alpha: .4);
+    background-color: rgba($color: #000000, $alpha: 0.4);
 
     display: flex;
     align-items: center;
@@ -30,14 +30,14 @@
 
     background: transparent;
 
-    transition: background .3s;
+    transition: background 0.3s;
 
     cursor: pointer;
 
     color: white;
 
     &:hover {
-        background: rgba($color: #ffffff, $alpha: .5)
+        background: rgba($color: #ffffff, $alpha: 0.5);
     }
 }
 
@@ -54,7 +54,6 @@
     font-size: 20px;
     line-height: 22px;
     text-align: center;
-
 
     padding: 0;
 }
@@ -110,7 +109,7 @@
         font-size: 20px;
 
         width: 50px;
-        
+
         @media screen and (max-width: 900px) {
             width: 30px;
         }
@@ -183,10 +182,10 @@
 
         cursor: pointer;
 
-        transition: background .3s;
+        transition: background 0.3s;
 
         &:hover {
-            background: rgba($color: #ffffff, $alpha: .5)
+            background: rgba($color: #ffffff, $alpha: 0.5);
         }
 
         @media screen and (max-width: 900px) {

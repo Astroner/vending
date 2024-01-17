@@ -1,7 +1,6 @@
-"server-only"
+"server-only";
 
 import { SlotInfo } from "../graphics/model";
-
 
 // Mock function to request data
 export const requestDBData = async (): Promise<SlotInfo[]> => {
@@ -16,7 +15,7 @@ export const requestDBData = async (): Promise<SlotInfo[]> => {
             slot: 12,
             color: 0xffdd11,
             count: 2,
-            price: 3
-        }
-    ]
-}
+            price: 3,
+        },
+    ];
+};
