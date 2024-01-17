@@ -3,6 +3,7 @@ import { OrbitControls, TextGeometry } from "three/examples/jsm/Addons.js";
 
 import { Assets, EventTemplate } from "./types";
 import { ViewCamera } from "./camera";
+import { VendingScene } from "./vending.scene";
 
 export type Configuration = {
     canvas: HTMLCanvasElement;
@@ -35,11 +36,6 @@ export type MovingCoin = {
     animationMixer: THREE.AnimationMixer;
 };
 
-type SlotInfo = {
-    slot: number;
-    group: THREE.Group;
-};
-
 export type CameraPosition = "front" | "numpad";
 
 export class View {
@@ -56,10 +52,6 @@ export class View {
     private scene = new THREE.Scene();
     private clock = new THREE.Clock();
 
-    private displayText: THREE.Mesh | null = null;
-    private itemsClippingPlanes: THREE.Plane[] | null = null;
-    private shiftPerItem: number | null = null;
-
     private mouse = new THREE.Vector2(0.5, 0.5);
 
     private animations = new Set<THREE.AnimationMixer>();
@@ -67,10 +59,10 @@ export class View {
 
     private buttonAnimations = new Map<string, THREE.AnimationAction>();
 
-    private slotsMap = new Map<number, SlotInfo>();
-
     private useHighlights = true;
     private enableCameraAdjustment = true;
+
+    private vendingScene: VendingScene;
 
     constructor(private config: Configuration) {
         this.camera = new ViewCamera<CameraPosition>(
@@ -88,6 +80,10 @@ export class View {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setClearColor(0x0000a0);
         this.renderer.localClippingEnabled = true;
+
+        this.vendingScene = new VendingScene(config.assets, config.initialText);
+
+        this.initScene();
     }
 
     start() {
@@ -99,8 +95,6 @@ export class View {
             "click",
             this.mouseClickHandler,
         );
-
-        this.initScene();
 
         const orbit =
             View.DEBUGGING &&
@@ -154,21 +148,7 @@ export class View {
     }
 
     setDisplay(text: string) {
-        if (!this.displayText) return;
-
-        const geometry = new TextGeometry(text, {
-            font: this.config.assets.displayFont,
-            size: 0.1,
-            height: 2,
-            curveSegments: 12,
-            bevelEnabled: true,
-            bevelThickness: 10,
-            bevelSize: 8,
-            bevelOffset: 0,
-            bevelSegments: 5,
-        });
-
-        this.displayText.geometry = geometry;
+        this.vendingScene.setDisplay(text);
     }
 
     setSize(width: number, height: number) {
@@ -179,49 +159,11 @@ export class View {
     }
 
     setSlot(slot: number, color: number, items: number) {
-        if (!this.itemsClippingPlanes) return;
-
-        const proto = this.config.assets.items.get(slot);
-
-        if (!proto) throw new Error("Unsupported slot " + slot);
-
-        const group = new THREE.Group();
-
-        const material = proto.material.clone();
-        material.color.set(color);
-
-        material.clippingPlanes = this.itemsClippingPlanes;
-
-        let nextPosition = proto.position.clone();
-        for (let i = 0; i < items; i++) {
-            const newItem = proto.clone();
-            newItem.visible = true;
-            newItem.material = material;
-            newItem.position.copy(nextPosition);
-            group.add(newItem);
-
-            nextPosition = nextPosition.clone();
-            nextPosition.x -= 0.1;
-        }
-
-        const prevSlot = this.slotsMap.get(slot);
-        if (prevSlot) {
-            prevSlot.group.removeFromParent();
-        }
-        this.slotsMap.set(slot, {
-            group,
-            slot,
-        });
-
-        this.scene.add(group);
+        this.vendingScene.setSlot(slot, color, items);
     }
 
     clearSlots() {
-        for (const slot of this.slotsMap.values()) {
-            slot.group.removeFromParent();
-        }
-
-        this.slotsMap.clear();
+        this.vendingScene.clearSlots();
     }
 
     openCloseHatch() {
@@ -297,13 +239,7 @@ export class View {
     }
 
     dropItem(slot: number) {
-        if (!this.shiftPerItem) return;
-
-        const slotInfo = this.slotsMap.get(slot);
-
-        if (!slotInfo) return;
-
-        slotInfo.group.position.x += this.shiftPerItem;
+        this.vendingScene.dropItem(slot);
     }
 
     setHighlight(useHighlights: boolean) {
@@ -452,39 +388,16 @@ export class View {
     };
 
     private initScene() {
-        const sky = new THREE.HemisphereLight(0xffffff, 0x0000ff);
-        this.scene.add(sky);
-
-        const projector = new THREE.DirectionalLight(0xffffff, 2);
-        projector.position.set(2, 8, 0);
-        projector.target.position.copy(
-            this.config.assets.numpadHighlight.plane.position,
-        );
-        this.scene.add(projector);
-        this.scene.add(projector.target);
-
-        if (View.DEBUGGING) {
-            const projectorHelper = new THREE.DirectionalLightHelper(projector);
-            this.scene.add(projectorHelper);
-        }
-
-        this.scene.add(this.config.assets.scene);
-
-        this.config.assets.glass.material.transparent = true;
-        this.config.assets.glass.material.opacity = 0.5;
-
-        this.initDisplay();
-
-        this.config.assets.coin.visible = false;
-
-        this.initSlots();
+        this.scene.add(this.vendingScene);
 
         const hatchAnimationMixer = new THREE.AnimationMixer(
             this.config.assets.hatch,
         );
+
         this.hatchAnimation = hatchAnimationMixer.clipAction(
             this.config.assets.hatchAnimation,
         );
+
         this.hatchAnimation.loop = THREE.LoopOnce;
         this.animations.add(hatchAnimationMixer);
 
@@ -493,62 +406,6 @@ export class View {
             else obj.visible = false;
         }
 
-        this.initNumpad();
-    }
-
-    private initDisplay() {
-        const geometry = new TextGeometry(this.config.initialText, {
-            font: this.config.assets.displayFont,
-            size: 0.1,
-            height: 2,
-            curveSegments: 12,
-            bevelEnabled: true,
-            bevelThickness: 10,
-            bevelSize: 8,
-            bevelOffset: 0,
-            bevelSegments: 5,
-        });
-
-        const mesh = new THREE.Mesh(geometry, [
-            new THREE.MeshBasicMaterial({ color: 0x000000 }),
-        ]);
-
-        mesh.rotateY(Math.PI / 2);
-
-        mesh.position.set(-10.92, 4.22, -1.4);
-
-        this.scene.add(mesh);
-
-        this.displayText = mesh;
-    }
-
-    private initSlots() {
-        for (const item of this.config.assets.items.values()) {
-            item.visible = false;
-        }
-
-        const itemBox = new THREE.Box3().setFromObject(
-            this.config.assets.items.get(1)!,
-        );
-        this.shiftPerItem = itemBox.max.x - itemBox.min.x + 0.027;
-
-        const box = new THREE.Box3().setFromObject(
-            this.config.assets.shelves[0],
-        );
-
-        this.itemsClippingPlanes = [
-            new THREE.Plane(new THREE.Vector3(1, 0, 0), box.max.x),
-            new THREE.Plane(new THREE.Vector3(-1, 0, 0), -box.min.x + 0.17),
-        ];
-
-        if (View.DEBUGGING) {
-            for (const plane of this.itemsClippingPlanes) {
-                this.scene.add(new THREE.PlaneHelper(plane, 15, 0xff0000));
-            }
-        }
-    }
-
-    private initNumpad() {
         for (const obj of this.config.assets.numbers.concat([
             this.config.assets.okBtn,
             this.config.assets.resetBtn,
@@ -563,12 +420,6 @@ export class View {
 
             this.buttonAnimations.set(obj.name, action);
         }
-
-        this.config.assets.numpadHighlight.plane.material.transparent = true;
-        this.config.assets.numpadHighlight.plane.material.opacity = 0;
-
-        this.config.assets.numpadHighlight.square.material.transparent = true;
-        this.config.assets.numpadHighlight.square.material.opacity = 0;
     }
 
     private moveCamera() {

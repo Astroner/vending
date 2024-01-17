@@ -2,7 +2,6 @@
 
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 
-
 import { Coin, Model, ModelState, SlotInfo } from "@/src/graphics/model";
 import { WalletIcon } from "@/src/icons/wallet.icon";
 
@@ -64,20 +63,23 @@ export const Display: FC<DisplayProps> = (props) => {
         });
     }, []);
 
-    const changeSlot = useCallback((index: number, update: Partial<SlotInfo>) => {
-        setEditableInventory((prev) => {
-            if (!prev) return null;
+    const changeSlot = useCallback(
+        (index: number, update: Partial<SlotInfo>) => {
+            setEditableInventory((prev) => {
+                if (!prev) return null;
 
-            const next = prev.slice(0);
+                const next = prev.slice(0);
 
-            next[index] = {
-                ...next[index],
-                ...update
-            };
+                next[index] = {
+                    ...next[index],
+                    ...update,
+                };
 
-            return next;
-        });
-    }, []);
+                return next;
+            });
+        },
+        [],
+    );
 
     const deleteSlot = useCallback((index: number) => {
         setEditableInventory((prev) => {
