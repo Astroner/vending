@@ -16,15 +16,21 @@ const DynamicDisplay = dynamic(
             "../../helpers/asset-loaders"
         );
 
-        const [vendingGLB, displayFont, { Display }, { parseVendingGLB }, fallSound, coinsSound] =
-            await Promise.all([
-                loadGLB("/assets/vending.glb"),
-                loadFont("/assets/display-font.json"),
-                import("./display.component"),
-                import("../../helpers/parse-vending-glb"),
-                loadAudio("/assets/fall.mp3"),
-                loadAudio("/assets/coins.mp3")
-            ]);
+        const [
+            vendingGLB,
+            displayFont,
+            { Display },
+            { parseVendingGLB },
+            fallSound,
+            coinsSound,
+        ] = await Promise.all([
+            loadGLB("/assets/vending.glb"),
+            loadFont("/assets/display-font.json"),
+            import("./display.component"),
+            import("../../helpers/parse-vending-glb"),
+            loadAudio("/assets/fall.mp3"),
+            loadAudio("/assets/coins.mp3"),
+        ]);
 
         const parsedVending = parseVendingGLB(vendingGLB);
 
@@ -35,7 +41,7 @@ const DynamicDisplay = dynamic(
                     ...parsedVending,
                     displayFont,
                     fallSound,
-                    coinsSound
+                    coinsSound,
                 }}
             />
         );
