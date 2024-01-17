@@ -4,6 +4,7 @@ import { OrbitControls, TextGeometry } from "three/examples/jsm/Addons.js";
 import { Assets, EventTemplate } from "./types";
 import { ViewCamera } from "./camera";
 import { VendingScene } from "./vending.scene";
+import { wait } from "../helpers/wait";
 
 export type Configuration = {
     canvas: HTMLCanvasElement;
@@ -64,6 +65,9 @@ export class View {
 
     private vendingScene: VendingScene;
 
+    private fallAudio: THREE.Audio;
+    private coinsAudio: THREE.Audio;
+
     constructor(private config: Configuration) {
         this.camera = new ViewCamera<CameraPosition>(
             "front",
@@ -84,6 +88,14 @@ export class View {
         this.vendingScene = new VendingScene(config.assets, config.initialText);
 
         this.initScene();
+
+        const listener = new THREE.AudioListener();
+        this.fallAudio = new THREE.Audio(listener);
+        this.fallAudio.setBuffer(config.assets.fallSound);
+
+        this.coinsAudio = new THREE.Audio(listener);
+        this.coinsAudio.setBuffer(config.assets.coinsSound);
+        this.coinsAudio.setVolume(1.2);
     }
 
     start() {
@@ -216,7 +228,11 @@ export class View {
         });
     }
 
-    dropChange(coins: number) {
+    async dropChange(coins: number) {
+        await wait(500);
+
+        this.coinsAudio.play();
+
         for (let i = 0; i < coins; i++) {
             const coin = this.config.assets.changeCoin.clone(true);
 
@@ -238,8 +254,10 @@ export class View {
         }
     }
 
-    dropItem(slot: number) {
+    async dropItem(slot: number) {
         this.vendingScene.dropItem(slot);
+        await wait(1000);
+        this.fallAudio.play();
     }
 
     setHighlight(useHighlights: boolean) {

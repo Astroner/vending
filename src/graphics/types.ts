@@ -54,4 +54,7 @@ export type Assets = {
 
     changeCoin: THREE.Object3D;
     changeCoinAnimation: THREE.AnimationClip;
+
+    fallSound: AudioBuffer;
+    coinsSound: AudioBuffer;
 };

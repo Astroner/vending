@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import {
     Font,
     FontLoader,
@@ -15,4 +16,10 @@ const fontLoader = new FontLoader();
 export const loadFont = async (path: string): Promise<Font> =>
     new Promise((resolve, reject) => {
         fontLoader.load(path, resolve, undefined, reject);
+    });
+
+const audioLoader = new THREE.AudioLoader();
+export const loadAudio = async (path: string): Promise<AudioBuffer> =>
+    new Promise((resolve, reject) => {
+        audioLoader.load(path, resolve, undefined, reject);
     });

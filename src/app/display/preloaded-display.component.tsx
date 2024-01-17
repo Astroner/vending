@@ -12,16 +12,18 @@ export type PreloadedDisplayProps = Omit<DisplayProps, "assets">;
 
 const DynamicDisplay = dynamic(
     async () => {
-        const { loadGLB, loadFont } = await import(
+        const { loadGLB, loadFont, loadAudio } = await import(
             "../../helpers/asset-loaders"
         );
 
-        const [vendingGLB, displayFont, { Display }, { parseVendingGLB }] =
+        const [vendingGLB, displayFont, { Display }, { parseVendingGLB }, fallSound, coinsSound] =
             await Promise.all([
                 loadGLB("/assets/vending.glb"),
                 loadFont("/assets/display-font.json"),
                 import("./display.component"),
                 import("../../helpers/parse-vending-glb"),
+                loadAudio("/assets/fall.mp3"),
+                loadAudio("/assets/coins.mp3")
             ]);
 
         const parsedVending = parseVendingGLB(vendingGLB);
@@ -32,6 +34,8 @@ const DynamicDisplay = dynamic(
                 assets={{
                     ...parsedVending,
                     displayFont,
+                    fallSound,
+                    coinsSound
                 }}
             />
         );

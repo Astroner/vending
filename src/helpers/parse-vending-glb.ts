@@ -3,7 +3,7 @@ import { GLTF } from "three/examples/jsm/Addons.js";
 
 import { Assets } from "../graphics/types";
 
-export const parseVendingGLB = (glb: GLTF): Omit<Assets, "displayFont"> => {
+export const parseVendingGLB = (glb: GLTF): Omit<Assets, "displayFont" | "fallSound" | "coinsSound"> => {
     const numbers: THREE.Group[] = [];
     const shelves: THREE.Mesh<
         THREE.BufferGeometry,
