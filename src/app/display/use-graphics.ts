@@ -27,7 +27,7 @@ export const useGraphics = (
             initialText: model.getDisplay(),
         });
 
-        if(container.clientWidth < MOBILE_WIDTH) {
+        if (container.clientWidth < MOBILE_WIDTH) {
             view.setHighlight(false);
             view.setCameraAdjustments(false);
         }
